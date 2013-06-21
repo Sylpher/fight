@@ -54,7 +54,15 @@ function _UI(s) {
 			result += '<div class="ui-button-empty"></div>';
 		}
 
-		return result;
+		$('#action-grid').html(result);
+
+		// Hook in events
+		for(var i=0; i < g.length; i++) {
+			$('#ui-grid-button-' + i).click(g[i].context, g[i].click);
+			//result += '<div id="ui-grid-button-' + i + '" class="ui-button  ui-button-grid">' + g[i].text + '</div>';
+		}
+
+		//return result;
 	};
 
 	this.modalWin = function(text, ok) {
