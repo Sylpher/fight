@@ -1,40 +1,35 @@
-function gridTop(e) {
-	g = [
-			{text:'<ul><li>Lorem</li></ul>'},
-			//{text:'<ul><li>Mid</li><li>P: ' + UI.genNum(100, -1, 'y') + '</li></ul>'},
-			//{text:'<ul><li>High</li><li>P: ' + UI.genNum(7, 7, 'y') + '</li></ul>'},
-			//{text:'<ul><li>Block</li></ul>'},
-			{text:'Sub-Menu Test'}
-	];
-
-	var grid = UI.genButtonGrid(g);
-	$('#action-grid').html(grid);
-	$('#ui-grid-button-0').click(gridSubLow);
-	//$('#ui-grid-button-1').click(gridSubMid);
-	$('#ui-grid-button-1').click(gridSubMenuTest);
-}
-
-function gridSubLow(e) {
-	UI.modalWin('<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p> <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>', 
-		'Ok, thanks.')
-}
-
-function gridSubMid(e) {
-	UI.modalWin('Pew!', 'Ok, thanks.')
-}
-
-function gridSubMenuTest(e) {
-	g = [
-			{text:'..'},
-			{text:'poo'},
-			{text:'doo'},
-			{text:'noo'}
-	];
-
-	var grid = UI.genButtonGrid(g);
-	$('#action-grid').html(grid);
-	$('#ui-grid-button-0').click(gridTop);	
-}
+//function gridTop(e) {
+//	g = [
+//			{text:'<ul><li>Lorem</li></ul>', click:gridLorem},
+//			{text:'<ul><li>Mid</li><li>P: ' + UI.genNum(100, -1, 'y') + '</li></ul>', click:gridLorem},
+//			//{text:'<ul><li>High</li><li>P: ' + UI.genNum(7, 7, 'y') + '</li></ul>'},
+//			//{text:'<ul><li>Block</li></ul>'},
+//			{text:'Sub-Menu Test', click:gridSubMenuTest}
+//	];
+//
+//	UI.genButtonGrid(g);
+//}
+//
+//function gridLorem(e) {
+//	var text = '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>';
+//	text += '<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>';
+//	UI.modalWin(text, 'Ok, thanks.');
+//}
+//
+//function gridSubMid(e) {
+//	UI.modalWin('Pew!', 'Ok, thanks.');
+//}
+//
+//function gridSubMenuTest(e) {
+//	g = [
+//			{text:'..', click:gridTop},
+//			{text:'poo'},
+//			{text:'doo'},
+//			{text:'noo'}
+//	];
+//
+//	UI.genButtonGrid(g);
+//}
 
 function Guy(s) {
 	_seed = s;
@@ -56,6 +51,41 @@ function Guy(s) {
 		
 		this.toString();
 	};
+
+	this.gridTop = function(e) {
+		var context = typeof e !== 'undefined' ? e.data : this;
+
+		g = [
+				{text:'<ul><li>Lorem</li></ul>', click:context.gridLorem, context:context},
+				{text:'<ul><li>Mid</li><li>P: ' + UI.genNum(100, -1, 'y') + '</li></ul>', click:context.gridLorem, context:context},
+				{text:'Sub-Menu Test', click:context.gridSubMenuTest, context:context}
+		];
+	
+		UI.genButtonGrid(g);
+	}
+
+	this.gridLorem = function(e) {
+		var text = '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>';
+		text += '<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>';
+		UI.modalWin(text, 'Ok, thanks.');
+	}
+
+	this.gridSubMid = function(e) {
+		UI.modalWin('Pew!', 'Ok, thanks.');
+	}
+	
+	this.gridSubMenuTest = function(e) {
+		var context = typeof e !== 'undefined' ? e.data : this;
+
+		g = [
+				{text:'..', click:context.gridTop, context:context},
+				{text:'poo'},
+				{text:'doo'},
+				{text:'noo'}
+		];
+	
+		UI.genButtonGrid(g);
+	}
 	
 	this.toString = function() {
 		var html = '';
@@ -68,7 +98,7 @@ function Guy(s) {
 
 		html += '<div id="action-grid"></div>';
 		$('#player').append(html);
-		gridTop();
+		this.gridTop();
 	}
 	
 	var _tname = ['Dr. ', '', 'Ms. ', '', 'Mr. ', '', 'Mrs. ', ''];
