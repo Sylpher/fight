@@ -1,54 +1,32 @@
-//function gridTop(e) {
-//	g = [
-//			{text:'<ul><li>Lorem</li></ul>', click:gridLorem},
-//			{text:'<ul><li>Mid</li><li>P: ' + UI.genNum(100, -1, 'y') + '</li></ul>', click:gridLorem},
-//			//{text:'<ul><li>High</li><li>P: ' + UI.genNum(7, 7, 'y') + '</li></ul>'},
-//			//{text:'<ul><li>Block</li></ul>'},
-//			{text:'Sub-Menu Test', click:gridSubMenuTest}
-//	];
-//
-//	UI.genButtonGrid(g);
-//}
-//
-//function gridLorem(e) {
-//	var text = '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>';
-//	text += '<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>';
-//	UI.modalWin(text, 'Ok, thanks.');
-//}
-//
-//function gridSubMid(e) {
-//	UI.modalWin('Pew!', 'Ok, thanks.');
-//}
-//
-//function gridSubMenuTest(e) {
-//	g = [
-//			{text:'..', click:gridTop},
-//			{text:'poo'},
-//			{text:'doo'},
-//			{text:'noo'}
-//	];
-//
-//	UI.genButtonGrid(g);
-//}
-
 function Guy(s) {
 	_seed = s;
 	_name = '';
 	_health = 0;
 	_power = 0;
+	_punch = 10;
+	_block = 10;
+	_mt = 0;
+
+	_max = {
+		health: 100,
+		power: 100
+	};
 	
 	this.genName = function() {
-		var mt1 = new MersenneTwister19937();
-		mt1.init_by_string(_seed);
+		_mt = new MersenneTwister19937();
+		_mt.init_by_string(_seed);
 		
-		_name = _tname[mt1.genrand_int32() % _tname.length];
-		_name += _fname[mt1.genrand_int32() % _fname.length] + ' ';
-		_name += _mname[mt1.genrand_int32() % _mname.length] + '. ';
-		_name += _lname[mt1.genrand_int32() % _lname.length];
+		_name = _tname[_mt.genrand_int32() % _tname.length];
+		_name += _fname[_mt.genrand_int32() % _fname.length] + ' ';
+		_name += _mname[_mt.genrand_int32() % _mname.length] + '. ';
+		_name += _lname[_mt.genrand_int32() % _lname.length];
 		
-		_health = mt1.genrand_int32() % 20;
-		_power = mt1.genrand_int32() % 20;
+		_health = Math.ceil(_mt.dice(_max.health, 2).average);
+		_power = Math.ceil(_mt.dice(_max.power, 2).average);
 		
+		_punch = _mt.dice(6, 2).total;
+		_block = _mt.dice(6, 2).total;
+
 		this.toString();
 	};
 
@@ -56,22 +34,34 @@ function Guy(s) {
 		var context = typeof e !== 'undefined' ? e.data : this;
 
 		g = [
-				{text:'<ul><li>Lorem</li></ul>', click:context.gridLorem, context:context},
-				{text:'<ul><li>Mid</li><li>P: ' + UI.genNum(100, -1, 'y') + '</li></ul>', click:context.gridLorem, context:context},
+				{text:'<ul><li>Punch</li><li><em>P</em>' + UI.genNum(_punch, -1, 'y') + '</li></ul>', click:context.actionPunch, context:context},
+				{text:'<ul><li>Block</li><li><em>P</em>' + UI.genNum(_block, -1, 'y') + '</li></ul>', click:context.actionBlock, context:context},
 				{text:'Sub-Menu Test', click:context.gridSubMenuTest, context:context}
 		];
 	
 		UI.genButtonGrid(g);
 	}
 
-	this.gridLorem = function(e) {
-		var text = '<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>';
-		text += '<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>';
-		UI.modalWin(text, 'Ok, thanks.');
+	this.actionPunch = function(e) {
+		Arena.Act();
+		//UI.modalWin('<p>POP!</p>', 'Ok, thanks.');
 	}
 
-	this.gridSubMid = function(e) {
-		UI.modalWin('Pew!', 'Ok, thanks.');
+	this.actionBlock = function(e) {
+		
+		var text = '';
+		var a = 0;
+
+		for(var i=0; i < 50000; i++) {
+			d = _mt.dice(100, 2).average;
+
+			if(d>50)
+				a += 1;
+		}
+
+		text += (a/50000);
+
+		UI.modalWin('<p>' + text + '</p>', 'Ok, thanks.');
 	}
 	
 	this.gridSubMenuTest = function(e) {
@@ -86,18 +76,25 @@ function Guy(s) {
 	
 		UI.genButtonGrid(g);
 	}
+
+	this.resolveAttack = function(d) {
+		_health = _health-1;
+
+		if(_health == 0) 
+			return true;
+
+		return false;
+	};
 	
 	this.toString = function() {
-		var html = '';
 		var stats = '';
 
+		stats += '<li><em>S</em>' + _seed + '</li>';
 		stats += '<li><em>N</em>' + _name + '</li>';
-		stats += '<li><em>H</em>' + UI.genBar(_health, 20) + '</li>';
-		stats += '<li><em>P</em>' + UI.genBar(_power, 20, 'y') + '</li>';
-		$('#player-strip .stats').append(stats);
+		stats += '<li><em>H</em>' + UI.genBar(_health, _max.health) + '</li>';
+		stats += '<li><em>P</em>' + UI.genBar(_power, _max.power, 'y') + '</li>';
+		$('#player-strip .stats').html(stats);
 
-		html += '<div id="action-grid"></div>';
-		$('#player').append(html);
 		this.gridTop();
 	}
 	
