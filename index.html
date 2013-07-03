@@ -8,6 +8,7 @@
 <script type="text/javascript" src="js/ui.js"></script>
 <script type="text/javascript" src="js/guy.js"></script>
 <script type="text/javascript" src="js/anima.js"></script>
+<script type="text/javascript" src="js/arena.js"></script>
 <style>
 	html { background: #111; }
 	body { font-family: sans-serif; font-size: 11px; color: #EEE; margin:0; padding:0; }
@@ -33,10 +34,11 @@
 	div.ui-modal-button {background: #111; padding: 4px; margin:10px 0 0 0; cursor: hand; cursor: pointer;}
 	div.ui-modal-button:hover { background: #1A1A1A; }
 
-	div#player, div#player-strip, div#opponent { position:absolute; background: #333; padding:10px; }
-	div#player { width: 224px; right: 10px; bottom:60px; }
+	div#action-grid, div#player-strip, div#opponent { position:absolute; background: #333; padding:10px; }
+	div#action-grid { width: 224px; right: 10px; bottom:60px; }
 	div#player-strip { left: 10px; right: 10px; bottom:10px; }
 	div#action-grid { width: 224px; height: 224px; }
+	div#action-grid em { font-size:14px; font-weight: bold; color:#888; padding-right: 1px; }
 
 	div#opponent { top: 10px; left: 10px; right:10px; }
 	
@@ -44,8 +46,6 @@
 </style>
 </head>
 <body>
-
-<div id="hd"></div>
 
 <div id="ui-modal-wrap">
 	<div id="ui-modal-overlay"></div>
@@ -56,28 +56,22 @@
 	<ul class="stats"></ul>
 </div>
 
-<div id="player">
+<div id="action-grid"></div>
+
+<div id="opponent">
+	<ul class="stats"></ul>
 </div>
 
-<div id="bd">
-	<div id="opponent">
-		<ul class="stats"></ul>
-	</div>
-</div>
-
-<div id="ft"></div>
 <script type="text/javascript">
-	var n = getParameterByName('s');
-	if(n !== '')
-		$('#player-strip .stats').append('<li><em>S</em>' + n + '<li>');
-	var guy = new Guy(n);
-	guy.genName();
-	
-	var r = genRandomString(6)
-	$('#opponent .stats').append('<li><em>S</em>' + r + '<li>');
+	var s = getParameterByName('s');
+	var r = genRandomString(6);
 
 	var guy2 = new Anima(r, 'opponent');
-	guy2.genName();
+	var guy = new Guy(s);
+
+	Arena.User(guy);
+	Arena.Opponent(guy2);
+	Arena.Update();
 </script>
 
 </body>
